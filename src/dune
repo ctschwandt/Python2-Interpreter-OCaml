@@ -1,0 +1,8 @@
+(include_subdirs unqualified)
+
+(library
+ (name p01_core)
+ (wrapped false)
+ (modules token lexer ast printer parser value env ops eval repl))
+
+(ocamllex syntax/lexer)
