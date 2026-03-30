@@ -1,7 +1,7 @@
 (* file: parser.ml *)
 
 open Token
-open Parse_tree_type
+open Ast
 
 exception Parse_error of string;;
 

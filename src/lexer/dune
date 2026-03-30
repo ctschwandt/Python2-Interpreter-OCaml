@@ -1,6 +1,0 @@
-(library
- (name p01_lexer)
- (wrapped false)
- (modules token lexer))
-
-(ocamllex lexer)

@@ -1,3 +1,3 @@
 (executable
  (name main)
- (libraries p01_lexer p01_parser p01_runtime))
+ (libraries p01_core))
