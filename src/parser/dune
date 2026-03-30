@@ -1,0 +1,5 @@
+(library
+ (name p01_parser)
+ (wrapped false)
+ (libraries p01_lexer)
+ (modules parse_tree_type parser))
