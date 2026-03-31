@@ -18,6 +18,14 @@ let to_int_value v =
       raise (Runtime_Error ("expected int-like value but got " ^ string_of_value v))
 ;;
 
+let require_int_value v =
+  match v with
+  | Int_Val n ->
+      n
+  | _ ->
+      raise (Runtime_Error ("expected int value but got " ^ string_of_value v))
+;;
+
 let to_float_value v =
   match v with
   | Int_Val n ->
@@ -109,6 +117,30 @@ let neg_value v =
       raise (Runtime_Error "bad operand type for unary -: tuple")
   | Dict_Val _ ->
       raise (Runtime_Error "bad operand type for unary -: dict")
+;;
+
+let bitnot_value v =
+  Int_Val (lnot (require_int_value v))
+;;
+
+let bitand_values v1 v2 =
+  Int_Val ((require_int_value v1) land (require_int_value v2))
+;;
+
+let bitor_values v1 v2 =
+  Int_Val ((require_int_value v1) lor (require_int_value v2))
+;;
+
+let bitxor_values v1 v2 =
+  Int_Val ((require_int_value v1) lxor (require_int_value v2))
+;;
+
+let lshift_values v1 v2 =
+  Int_Val ((require_int_value v1) lsl (require_int_value v2))
+;;
+
+let rshift_values v1 v2 =
+  Int_Val ((require_int_value v1) asr (require_int_value v2))
 ;;
 
 let add_values v1 v2 =

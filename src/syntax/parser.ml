@@ -211,7 +211,7 @@ and
   comparison toks =
     let toks = skip_newlines toks in
     let _ = check_no_unexpected_indent toks in
-    let (left, toks1) = expr toks in
+    let (left, toks1) = bitor_expr toks in
     comparison_tail left toks1
 
 and
@@ -219,23 +219,90 @@ and
     let toks = skip_newlines toks in
     match toks with
     | Is_equ_tok::toks1 ->
-        let (right, toks2) = expr toks1 in
+        let (right, toks2) = bitor_expr toks1 in
         (Is_Eq_Expr(left, right), toks2)
     | Is_neq_tok::toks1 ->
-        let (right, toks2) = expr toks1 in
+        let (right, toks2) = bitor_expr toks1 in
         (Is_Neq_Expr(left, right), toks2)
     | Lt_tok::toks1 ->
-        let (right, toks2) = expr toks1 in
+        let (right, toks2) = bitor_expr toks1 in
         (Lt_Expr(left, right), toks2)
     | Leq_tok::toks1 ->
-        let (right, toks2) = expr toks1 in
+        let (right, toks2) = bitor_expr toks1 in
         (Leq_Expr(left, right), toks2)
     | Gt_tok::toks1 ->
-        let (right, toks2) = expr toks1 in
+        let (right, toks2) = bitor_expr toks1 in
         (Gt_Expr(left, right), toks2)
     | Geq_tok::toks1 ->
-        let (right, toks2) = expr toks1 in
+        let (right, toks2) = bitor_expr toks1 in
         (Geq_Expr(left, right), toks2)
+    | _ ->
+        (left, toks)
+
+and
+  bitor_expr toks =
+    let toks = skip_newlines toks in
+    let (left, toks1) = bitxor_expr toks in
+    bitor_tail left toks1
+
+and
+  bitor_tail left toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Bitor_tok::toks1 ->
+        let (right, toks2) = bitxor_expr toks1 in
+        bitor_tail (Bitor_Expr(left, right)) toks2
+    | _ ->
+        (left, toks)
+
+and
+  bitxor_expr toks =
+    let toks = skip_newlines toks in
+    let (left, toks1) = bitand_expr toks in
+    bitxor_tail left toks1
+
+and
+  bitxor_tail left toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Bitxor_tok::toks1 ->
+        let (right, toks2) = bitand_expr toks1 in
+        bitxor_tail (Bitxor_Expr(left, right)) toks2
+    | _ ->
+        (left, toks)
+
+and
+  bitand_expr toks =
+    let toks = skip_newlines toks in
+    let (left, toks1) = shift_expr toks in
+    bitand_tail left toks1
+
+and
+  bitand_tail left toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Bitand_tok::toks1 ->
+        let (right, toks2) = shift_expr toks1 in
+        bitand_tail (Bitand_Expr(left, right)) toks2
+    | _ ->
+        (left, toks)
+
+and
+  shift_expr toks =
+    let toks = skip_newlines toks in
+    let (left, toks1) = expr toks in
+    shift_tail left toks1
+
+and
+  shift_tail left toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Lshift_tok::toks1 ->
+        let (right, toks2) = expr toks1 in
+        shift_tail (Lshift_Expr(left, right)) toks2
+    | Rshift_tok::toks1 ->
+        let (right, toks2) = expr toks1 in
+        shift_tail (Rshift_Expr(left, right)) toks2
     | _ ->
         (left, toks)
 
@@ -298,6 +365,9 @@ and
     | Minus_tok::toks1 ->
         let (e, toks2) = unary toks1 in
         (Neg_Expr e, toks2)
+    | Bitnot_tok::toks1 ->
+        let (e, toks2) = unary toks1 in
+        (Bitnot_Expr e, toks2)
     | Indent_tok::_ ->
         raise (Parse_error "Indentation error: unexpected indent")
     | Dedent_tok::_ ->
