@@ -13,6 +13,11 @@ type expr = Int_Expr of int
           | Mul_Expr of expr * expr
           | Div_Expr of expr * expr
           | Pow_Expr of expr * expr
+          | Bitand_Expr of expr * expr
+          | Bitor_Expr of expr * expr
+          | Bitxor_Expr of expr * expr
+          | Lshift_Expr of expr * expr
+          | Rshift_Expr of expr * expr
           | Is_Eq_Expr of expr * expr
           | Is_Neq_Expr of expr * expr
           | Lt_Expr of expr * expr
@@ -22,6 +27,7 @@ type expr = Int_Expr of int
           | And_Expr of expr * expr
           | Or_Expr of expr * expr
           | Not_Expr of expr
+          | Bitnot_Expr of expr
 and
   target = Name_Target of string
          | Index_Target of target * expr

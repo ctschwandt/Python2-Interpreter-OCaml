@@ -92,6 +92,11 @@ and eval_expr env e =
   | Pow_Expr (e1, e2) -> pow_values (eval_expr env e1) (eval_expr env e2)
   | Mul_Expr (e1, e2) -> mul_values (eval_expr env e1) (eval_expr env e2)
   | Div_Expr (e1, e2) -> div_values (eval_expr env e1) (eval_expr env e2)
+  | Bitand_Expr (e1, e2) -> bitand_values (eval_expr env e1) (eval_expr env e2)
+  | Bitor_Expr (e1, e2) -> bitor_values (eval_expr env e1) (eval_expr env e2)
+  | Bitxor_Expr (e1, e2) -> bitxor_values (eval_expr env e1) (eval_expr env e2)
+  | Lshift_Expr (e1, e2) -> lshift_values (eval_expr env e1) (eval_expr env e2)
+  | Rshift_Expr (e1, e2) -> rshift_values (eval_expr env e1) (eval_expr env e2)
   | Is_Eq_Expr (e1, e2) -> eq_values (eval_expr env e1) (eval_expr env e2)
   | Is_Neq_Expr (e1, e2) -> neq_values (eval_expr env e1) (eval_expr env e2)
   | Lt_Expr (e1, e2) -> lt_values (eval_expr env e1) (eval_expr env e2)
@@ -101,6 +106,7 @@ and eval_expr env e =
   | And_Expr (e1, e2) -> and_values (eval_expr env e1) (eval_expr env e2)
   | Or_Expr (e1, e2) -> or_values (eval_expr env e1) (eval_expr env e2)
   | Not_Expr e1 -> not_value (eval_expr env e1)
+  | Bitnot_Expr e1 -> bitnot_value (eval_expr env e1)
 ;;
 
 let rec eval_stmt env s =

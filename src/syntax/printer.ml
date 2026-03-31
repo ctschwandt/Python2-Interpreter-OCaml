@@ -42,6 +42,16 @@ let rec string_of_expr e =
       "(" ^ string_of_expr e1 ^ " / " ^ string_of_expr e2 ^ ")"
   | Pow_Expr (e1, e2) ->
       "(" ^ string_of_expr e1 ^ " ** " ^ string_of_expr e2 ^ ")"
+  | Bitand_Expr (e1, e2) ->
+      "(" ^ string_of_expr e1 ^ " & " ^ string_of_expr e2 ^ ")"
+  | Bitor_Expr (e1, e2) ->
+      "(" ^ string_of_expr e1 ^ " | " ^ string_of_expr e2 ^ ")"
+  | Bitxor_Expr (e1, e2) ->
+      "(" ^ string_of_expr e1 ^ " ^ " ^ string_of_expr e2 ^ ")"
+  | Lshift_Expr (e1, e2) ->
+      "(" ^ string_of_expr e1 ^ " << " ^ string_of_expr e2 ^ ")"
+  | Rshift_Expr (e1, e2) ->
+      "(" ^ string_of_expr e1 ^ " >> " ^ string_of_expr e2 ^ ")"
   | Is_Eq_Expr (e1, e2) ->
       "(" ^ string_of_expr e1 ^ " == " ^ string_of_expr e2 ^ ")"
   | Is_Neq_Expr (e1, e2) ->
@@ -60,6 +70,8 @@ let rec string_of_expr e =
       "(" ^ string_of_expr e1 ^ " or " ^ string_of_expr e2 ^ ")"
   | Not_Expr e1 ->
       "(not " ^ string_of_expr e1 ^ ")"
+  | Bitnot_Expr e1 ->
+      "(~" ^ string_of_expr e1 ^ ")"
 
 and
   string_of_exprs es =

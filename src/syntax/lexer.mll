@@ -110,6 +110,12 @@ let identifier = (letter | '_') (alphanum | '_')*
 let pow = "**"
 let mult = '*'
 let div = '/'
+let bitand = '&'
+let bitor = '|'
+let bitxor = '^'
+let bitnot = '~'
+let lshift = "<<"
+let rshift = ">>"
 let is_equ = "=="
 let is_neq = "!="
 let lt = '<'
@@ -161,6 +167,12 @@ rule bol n = parse
      | pow              { let pre = apply_indent n in pre @ (Pow_tok::(lexer lexbuf)) }
      | mult             { let pre = apply_indent n in pre @ (Mult_tok::(lexer lexbuf)) }
      | div              { let pre = apply_indent n in pre @ (Div_tok::(lexer lexbuf)) }
+     | bitand           { let pre = apply_indent n in pre @ (Bitand_tok::(lexer lexbuf)) }
+     | bitor            { let pre = apply_indent n in pre @ (Bitor_tok::(lexer lexbuf)) }
+     | bitxor           { let pre = apply_indent n in pre @ (Bitxor_tok::(lexer lexbuf)) }
+     | bitnot           { let pre = apply_indent n in pre @ (Bitnot_tok::(lexer lexbuf)) }
+     | lshift           { let pre = apply_indent n in pre @ (Lshift_tok::(lexer lexbuf)) }
+     | rshift           { let pre = apply_indent n in pre @ (Rshift_tok::(lexer lexbuf)) }
      | is_equ           { let pre = apply_indent n in pre @ (Is_equ_tok::(lexer lexbuf)) }
      | is_neq           { let pre = apply_indent n in pre @ (Is_neq_tok::(lexer lexbuf)) }
      | gt               { let pre = apply_indent n in pre @ ((Gt_tok)::(lexer lexbuf)) }
@@ -206,6 +218,12 @@ lexer = parse
      | pow              { (Pow_tok)::(lexer lexbuf) }
      | mult             { (Mult_tok)::(lexer lexbuf) }
      | div              { (Div_tok)::(lexer lexbuf) }
+     | bitand           { (Bitand_tok)::(lexer lexbuf) }
+     | bitor            { (Bitor_tok)::(lexer lexbuf) }
+     | bitxor           { (Bitxor_tok)::(lexer lexbuf) }
+     | bitnot           { (Bitnot_tok)::(lexer lexbuf) }
+     | lshift           { (Lshift_tok)::(lexer lexbuf) }
+     | rshift           { (Rshift_tok)::(lexer lexbuf) }
      | is_equ           { (Is_equ_tok)::(lexer lexbuf) }
      | is_neq           { (Is_neq_tok)::(lexer lexbuf) }
      | gt               { (Gt_tok)::(lexer lexbuf) }
