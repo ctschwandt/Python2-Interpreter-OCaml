@@ -76,6 +76,15 @@ and
            (While_Stmt(cond, body), rest3)
          | _ ->
            raise (Parse_error "Expected Colon_tok after while condition"))
+    | Print_tok::Lparen_tok::rest ->
+        let (e, rest1) = full_expr rest in
+        (match skip_newlines rest1 with
+         | Rparen_tok::rest2 ->
+             (Print_Stmt e, skip_newlines rest2)
+         | _ ->
+             raise (Parse_error "Expected Rparen_tok after print expression"))
+    | Print_tok::_ ->
+        raise (Parse_error "Expected print(expr)")
     | Id_tok _::_ ->
       let (names, rest1) = assign_targets toks in
       (match names with

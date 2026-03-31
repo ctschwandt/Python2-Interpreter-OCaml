@@ -104,6 +104,8 @@ let rec string_of_stmt s =
   match s with
   | Expr_Stmt e ->
       string_of_expr e
+  | Print_Stmt e ->
+      "print(" ^ string_of_expr e ^ ")"
   | Assign_Stmt (names, e) ->
       string_of_string_list names ^ " = " ^ string_of_expr e
   | Target_Assign_Stmt (target, e) ->
