@@ -24,6 +24,7 @@ type token = Int_tok of int
            | Elif_tok
            | Else_tok
            | While_tok
+           | Print_tok
            | Lbrace_tok
            | Rbrace_tok
            | Lbracket_tok
@@ -64,6 +65,7 @@ let string_of_token tok =
   | Elif_tok       -> "Elif_tok"
   | Else_tok       -> "Else_tok"
   | While_tok      -> "While_tok"
+  | Print_tok      -> "Print_tok"
   | Lbrace_tok     -> "Lbrace_tok"
   | Rbrace_tok     -> "Rbrace_tok"
   | Lbracket_tok   -> "Lbracket_tok"

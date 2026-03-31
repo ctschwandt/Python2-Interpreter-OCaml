@@ -109,6 +109,9 @@ let rec eval_stmt env s =
   | Expr_Stmt e ->
       let v = eval_expr env e in
       print_endline (string_of_value v)
+  | Print_Stmt e ->
+      let v = eval_expr env e in
+      print_endline (string_of_value v)
   | Assign_Stmt (names, e) ->
       let v = eval_expr env e in
       List.iter (fun name -> update env name v) names

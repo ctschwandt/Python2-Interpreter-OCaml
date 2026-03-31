@@ -30,6 +30,7 @@ and
             | Else_Block of stmt list
 and
   stmt = Expr_Stmt of expr
+       | Print_Stmt of expr
        | Assign_Stmt of string list * expr
        | Target_Assign_Stmt of target * expr
        | Exit_Stmt
