@@ -108,9 +108,9 @@ and eval_expr env e =
   | Not_Expr e1 -> not_value (eval_expr env e1)
   | Bitnot_Expr e1 -> bitnot_value (eval_expr env e1)
   | Range_Expr args -> eval_range_expr env args
-;;
 
-and eval_range_expr env args =
+and
+  eval_range_expr env args =
   let int_arg e =
     require_int_value (eval_expr env e)
   in
