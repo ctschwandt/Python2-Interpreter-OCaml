@@ -72,6 +72,8 @@ let rec string_of_expr e =
       "(not " ^ string_of_expr e1 ^ ")"
   | Bitnot_Expr e1 ->
       "(~" ^ string_of_expr e1 ^ ")"
+  | Range_Expr args ->
+      "range(" ^ string_of_exprs args ^ ")"
 
 and
   string_of_exprs es =
@@ -157,4 +159,9 @@ let rec string_of_stmt s =
         String.concat "; " (List.map string_of_stmt body)
       in
       "while " ^ string_of_expr cond ^ ": [" ^ body_s ^ "]"
+  | For_Stmt (name, iterable, body) ->
+      let body_s =
+        String.concat "; " (List.map string_of_stmt body)
+      in
+      "for " ^ name ^ " in " ^ string_of_expr iterable ^ ": [" ^ body_s ^ "]"
 ;;

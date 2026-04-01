@@ -28,6 +28,7 @@ type expr = Int_Expr of int
           | Or_Expr of expr * expr
           | Not_Expr of expr
           | Bitnot_Expr of expr
+          | Range_Expr of expr list
 and
   target = Name_Target of string
          | Index_Target of target * expr
@@ -54,4 +55,5 @@ and
        | Exit_Stmt
        | If_Stmt of expr * stmt list * else_part
        | While_Stmt of expr * stmt list
+       | For_Stmt of string * expr * stmt list
 ;;

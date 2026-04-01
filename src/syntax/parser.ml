@@ -91,6 +91,21 @@ and
            (While_Stmt(cond, body), rest3)
          | _ ->
            raise (Parse_error "Expected Colon_tok after while condition"))
+    | For_tok::Id_tok name::rest ->
+        let toks1 = skip_newlines rest in
+        (match toks1 with
+         | In_tok::rest1 ->
+             let (iterable, rest2) = full_expr rest1 in
+             (match skip_newlines rest2 with
+              | Colon_tok::rest3 ->
+                  let (body, rest4) = stmt_or_block rest3 in
+                  (For_Stmt(name, iterable, body), rest4)
+              | _ ->
+                  raise (Parse_error "Expected Colon_tok after for iterable expression"))
+         | _ ->
+             raise (Parse_error "Expected In_tok after for target"))
+    | For_tok::_ ->
+        raise (Parse_error "For loop target must be a single identifier")
     | Print_tok::Lparen_tok::rest ->
         let (e, rest1) = full_expr rest in
         (match skip_newlines rest1 with
@@ -517,6 +532,31 @@ and
         raise (Parse_error "Expected Comma_tok or Rbrace_tok in dict literal")
 
 and
+  range_expr_args rev_args toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Rparen_tok::rest ->
+        let args = List.rev rev_args in
+        let n = List.length args in
+        if n >= 1 && n <= 3 then
+          (Range_Expr args, rest)
+        else
+          raise (Parse_error "range expects 1 to 3 arguments")
+    | _ ->
+        let (arg, rest1) = full_expr toks in
+        let rev_args = arg::rev_args in
+        if List.length rev_args > 3 then
+          raise (Parse_error "range expects 1 to 3 arguments")
+        else
+          (match skip_newlines rest1 with
+           | Comma_tok::rest2 ->
+               range_expr_args rev_args rest2
+           | Rparen_tok::rest2 ->
+               (Range_Expr (List.rev rev_args), rest2)
+           | _ ->
+               raise (Parse_error "Expected Comma_tok or Rparen_tok in range(...)"))
+
+and
   atom toks =
     let toks = skip_newlines toks in
     match toks with
@@ -528,6 +568,8 @@ and
         (Bool_Expr b, rest)
     | String_tok s::rest ->
         (String_Expr s, rest)
+    | Id_tok "range"::Lparen_tok::toks1 ->
+        range_expr_args [] toks1
     | Id_tok name::rest ->
         (Var_Expr name, rest)
     | Lbracket_tok::toks1 ->
