@@ -113,7 +113,8 @@ let value_at_slice v start_opt stop_opt step_opt =
   else
     match v with
     | List_Val xs ->
-        let len = List.length xs in
+        let arr = Array.of_list xs in
+        let len = Array.length arr in
         let default_start = if step > 0 then 0 else len - 1 in
         let default_stop = if step > 0 then len else -1 in
         let start =
@@ -134,7 +135,7 @@ let value_at_slice v start_opt stop_opt step_opt =
           if (step > 0 && i >= stop) || (step < 0 && i <= stop) then
             List.rev acc
           else
-            build (i + step) ((List.nth xs i)::acc)
+            build (i + step) (arr.(i)::acc)
         in
         List_Val (build start [])
     | Tuple_Val _ ->
