@@ -112,6 +112,20 @@ let string_of_string_list xs =
   aux xs
 ;;
 
+let string_of_augop op =
+  match op with
+  | Add_Augop -> "+="
+  | Sub_Augop -> "-="
+  | Mul_Augop -> "*="
+  | Div_Augop -> "/="
+  | Pow_Augop -> "**="
+  | Bitand_Augop -> "&="
+  | Bitor_Augop -> "|="
+  | Bitxor_Augop -> "^="
+  | Lshift_Augop -> "<<="
+  | Rshift_Augop -> ">>="
+;;
+
 let rec string_of_stmt s =
   match s with
   | Expr_Stmt e ->
@@ -122,6 +136,8 @@ let rec string_of_stmt s =
       string_of_string_list names ^ " = " ^ string_of_expr e
   | Target_Assign_Stmt (target, e) ->
       string_of_target target ^ " = " ^ string_of_expr e
+  | Augassign_Stmt (name, op, e) ->
+      name ^ " " ^ string_of_augop op ^ " " ^ string_of_expr e
   | Exit_Stmt ->
       "exit()"
   | If_Stmt (cond, then_body, else_part) ->

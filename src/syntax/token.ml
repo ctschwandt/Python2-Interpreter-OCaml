@@ -16,6 +16,16 @@ type token = Int_tok of int
            | Bitnot_tok
            | Lshift_tok
            | Rshift_tok
+           | Plus_Equ_tok
+           | Minus_Equ_tok
+           | Pow_Equ_tok
+           | Mult_Equ_tok
+           | Div_Equ_tok
+           | Bitand_Equ_tok
+           | Bitor_Equ_tok
+           | Bitxor_Equ_tok
+           | Lshift_Equ_tok
+           | Rshift_Equ_tok
            | Is_equ_tok
            | Is_neq_tok
            | Gt_tok
@@ -66,6 +76,16 @@ let string_of_token tok =
   | Bitnot_tok     -> "Bitnot_tok"
   | Lshift_tok     -> "Lshift_tok"
   | Rshift_tok     -> "Rshift_tok"
+  | Plus_Equ_tok   -> "Plus_Equ_tok"
+  | Minus_Equ_tok  -> "Minus_Equ_tok"
+  | Pow_Equ_tok    -> "Pow_Equ_tok"
+  | Mult_Equ_tok   -> "Mult_Equ_tok"
+  | Div_Equ_tok    -> "Div_Equ_tok"
+  | Bitand_Equ_tok -> "Bitand_Equ_tok"
+  | Bitor_Equ_tok  -> "Bitor_Equ_tok"
+  | Bitxor_Equ_tok -> "Bitxor_Equ_tok"
+  | Lshift_Equ_tok -> "Lshift_Equ_tok"
+  | Rshift_Equ_tok -> "Rshift_Equ_tok"
   | Is_equ_tok     -> "Is_equ_tok"
   | Is_neq_tok     -> "Is_neq_tok"
   | Gt_tok         -> "Gt_tok"

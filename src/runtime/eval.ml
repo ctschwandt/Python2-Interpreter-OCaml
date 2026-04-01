@@ -109,6 +109,25 @@ and eval_expr env e =
   | Bitnot_Expr e1 -> bitnot_value (eval_expr env e1)
 ;;
 
+let eval_augassign env name op rhs_expr =
+  let lhs = lookup env name in
+  let rhs = eval_expr env rhs_expr in
+  let result =
+    match op with
+    | Add_Augop -> add_values lhs rhs
+    | Sub_Augop -> sub_values lhs rhs
+    | Mul_Augop -> mul_values lhs rhs
+    | Div_Augop -> div_values lhs rhs
+    | Pow_Augop -> pow_values lhs rhs
+    | Bitand_Augop -> bitand_values lhs rhs
+    | Bitor_Augop -> bitor_values lhs rhs
+    | Bitxor_Augop -> bitxor_values lhs rhs
+    | Lshift_Augop -> lshift_values lhs rhs
+    | Rshift_Augop -> rshift_values lhs rhs
+  in
+  update env name result
+;;
+
 let rec eval_stmt env s =
   match s with
   | Exit_Stmt -> raise Exit
@@ -124,6 +143,8 @@ let rec eval_stmt env s =
   | Target_Assign_Stmt (target, e) ->
       let v = eval_expr env e in
       assign_target env target v
+  | Augassign_Stmt (name, op, e) ->
+      eval_augassign env name op e
   | If_Stmt (condition, then_body, else_body) ->
       if to_bool_value (eval_expr env condition) then
         eval_stmt_list env then_body
