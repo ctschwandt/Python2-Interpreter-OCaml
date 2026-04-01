@@ -7,6 +7,7 @@ type expr = Int_Expr of int
           | Tuple_Expr of expr list
           | Dict_Expr of (expr * expr) list
           | Index_Expr of expr * expr
+          | Slice_Expr of expr * expr option * expr option * expr option
           | Neg_Expr of expr
           | Add_Expr of expr * expr
           | Sub_Expr of expr * expr
