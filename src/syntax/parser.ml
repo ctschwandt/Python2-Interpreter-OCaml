@@ -428,14 +428,53 @@ and
     let toks = skip_newlines toks in
     match toks with
     | Lbracket_tok::toks1 ->
-        let (index, toks2) = full_expr toks1 in
-        (match skip_newlines toks2 with
-         | Rbracket_tok::toks3 ->
-             postfix_tail (Index_Expr(base, index)) toks3
-         | _ ->
-             raise (Parse_error "Expected Rbracket_tok after index expression"))
+        (match parse_bracket_subscript base toks1 with
+         | (subscript, toks2) ->
+             postfix_tail subscript toks2)
     | _ ->
         (base, toks)
+
+and
+  parse_slice_field toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Colon_tok::_ | Rbracket_tok::_ ->
+        (None, toks)
+    | _ ->
+        let (e, toks1) = full_expr toks in
+        (Some e, toks1)
+
+and
+  parse_bracket_subscript base toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Colon_tok::rest1 ->
+        parse_slice_after_first_colon base None rest1
+    | _ ->
+        let (first, rest1) = full_expr toks in
+        (match skip_newlines rest1 with
+         | Rbracket_tok::rest2 ->
+             (Index_Expr (base, first), rest2)
+         | Colon_tok::rest2 ->
+             parse_slice_after_first_colon base (Some first) rest2
+         | _ ->
+             raise (Parse_error "Expected Rbracket_tok or Colon_tok in subscript"))
+
+and
+  parse_slice_after_first_colon base start_opt toks =
+    let (stop_opt, rest1) = parse_slice_field toks in
+    (match skip_newlines rest1 with
+     | Rbracket_tok::rest2 ->
+         (Slice_Expr (base, start_opt, stop_opt, None), rest2)
+     | Colon_tok::rest2 ->
+         let (step_opt, rest3) = parse_slice_field rest2 in
+         (match skip_newlines rest3 with
+          | Rbracket_tok::rest4 ->
+              (Slice_Expr (base, start_opt, stop_opt, step_opt), rest4)
+          | _ ->
+              raise (Parse_error "Expected Rbracket_tok after slice expression"))
+     | _ ->
+         raise (Parse_error "Expected Rbracket_tok or Colon_tok in slice expression"))
 
 and
   list_literal toks =

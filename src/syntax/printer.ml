@@ -30,6 +30,19 @@ let rec string_of_expr e =
       "{" ^ string_of_dict_pairs pairs ^ "}"
   | Index_Expr (e1, e2) ->
       string_of_expr e1 ^ "[" ^ string_of_expr e2 ^ "]"
+  | Slice_Expr (e1, start_opt, stop_opt, step_opt) ->
+      let string_of_opt opt =
+        match opt with
+        | None -> ""
+        | Some e2 -> string_of_expr e2
+      in
+      let core = string_of_opt start_opt ^ ":" ^ string_of_opt stop_opt in
+      let suffix =
+        match step_opt with
+        | None -> ""
+        | Some e2 -> ":" ^ string_of_expr e2
+      in
+      string_of_expr e1 ^ "[" ^ core ^ suffix ^ "]"
   | Neg_Expr e1 ->
       "(-" ^ string_of_expr e1 ^ ")"
   | Add_Expr (e1, e2) ->

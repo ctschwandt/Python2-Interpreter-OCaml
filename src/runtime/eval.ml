@@ -86,6 +86,16 @@ and eval_expr env e =
       let _ = fill pairs in
       Dict_Val d
   | Index_Expr (e1, e2) -> value_at_index (eval_expr env e1) (eval_expr env e2)
+  | Slice_Expr (e1, start_opt, stop_opt, step_opt) ->
+      let base_v = eval_expr env e1 in
+      let eval_opt opt =
+        match opt with
+        | None ->
+            None
+        | Some e ->
+            Some (eval_expr env e)
+      in
+      value_at_slice base_v (eval_opt start_opt) (eval_opt stop_opt) (eval_opt step_opt)
   | Neg_Expr e1 -> neg_value (eval_expr env e1)
   | Add_Expr (e1, e2) -> add_values (eval_expr env e1) (eval_expr env e2)
   | Sub_Expr (e1, e2) -> sub_values (eval_expr env e1) (eval_expr env e2)

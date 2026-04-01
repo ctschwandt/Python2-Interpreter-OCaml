@@ -88,6 +88,69 @@ let value_at_index v index_v =
       raise (Runtime_Error "type string is not indexable")
 ;;
 
+let clamp low high x =
+  max low (min high x)
+;;
+
+let normalize_slice_bound i len step =
+  let j = if i < 0 then len + i else i in
+  if step > 0 then
+    clamp 0 len j
+  else
+    clamp (-1) (len - 1) j
+;;
+
+let value_at_slice v start_opt stop_opt step_opt =
+  let step =
+    match step_opt with
+    | None ->
+        1
+    | Some step_v ->
+        to_int_value step_v
+  in
+  if step = 0 then
+    raise (Runtime_Error "slice step cannot be zero")
+  else
+    match v with
+    | List_Val xs ->
+        let len = List.length xs in
+        let default_start = if step > 0 then 0 else len - 1 in
+        let default_stop = if step > 0 then len else -1 in
+        let start =
+          match start_opt with
+          | None ->
+              default_start
+          | Some start_v ->
+              normalize_slice_bound (to_int_value start_v) len step
+        in
+        let stop =
+          match stop_opt with
+          | None ->
+              default_stop
+          | Some stop_v ->
+              normalize_slice_bound (to_int_value stop_v) len step
+        in
+        let rec build i acc =
+          if (step > 0 && i >= stop) || (step < 0 && i <= stop) then
+            List.rev acc
+          else
+            build (i + step) ((List.nth xs i)::acc)
+        in
+        List_Val (build start [])
+    | Tuple_Val _ ->
+        raise (Runtime_Error "type tuple does not support slicing")
+    | Dict_Val _ ->
+        raise (Runtime_Error "type dict does not support slicing")
+    | Int_Val _ ->
+        raise (Runtime_Error "type int does not support slicing")
+    | Float_Val _ ->
+        raise (Runtime_Error "type float does not support slicing")
+    | Bool_Val _ ->
+        raise (Runtime_Error "type bool does not support slicing")
+    | String_Val _ ->
+        raise (Runtime_Error "type string does not support slicing")
+;;
+
 let replace_nth xs i new_v =
   let rec aux j ys =
     match ys with
