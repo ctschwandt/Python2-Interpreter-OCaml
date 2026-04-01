@@ -47,6 +47,21 @@ let rec
         ([], toks)
 
 and
+  augop_of_token tok =
+    match tok with
+    | Plus_Equ_tok -> Some Add_Augop
+    | Minus_Equ_tok -> Some Sub_Augop
+    | Mult_Equ_tok -> Some Mul_Augop
+    | Div_Equ_tok -> Some Div_Augop
+    | Pow_Equ_tok -> Some Pow_Augop
+    | Bitand_Equ_tok -> Some Bitand_Augop
+    | Bitor_Equ_tok -> Some Bitor_Augop
+    | Bitxor_Equ_tok -> Some Bitxor_Augop
+    | Lshift_Equ_tok -> Some Lshift_Augop
+    | Rshift_Equ_tok -> Some Rshift_Augop
+    | _ -> None
+
+and
   stmt toks =
     let toks = skip_newlines toks in
     let _ = check_no_unexpected_indent toks in
@@ -98,6 +113,19 @@ and
             let target = target_of_expr lhs in
             let (rhs, rest4) = full_expr rest3 in
             (Target_Assign_Stmt(target, rhs), skip_newlines rest4)
+          | op_tok::rest3 ->
+            (match augop_of_token op_tok with
+             | Some op ->
+               (match lhs with
+                | Var_Expr name ->
+                  let (rhs, rest4) = full_expr rest3 in
+                  (Augassign_Stmt(name, op, rhs), skip_newlines rest4)
+                | _ ->
+                  raise
+                    (Parse_error
+                       "Left side of augmented assignment must be an identifier"))
+             | None ->
+               (Expr_Stmt lhs, skip_newlines rest2))
           | _ ->
             (Expr_Stmt lhs, skip_newlines rest2)))
     | _ ->

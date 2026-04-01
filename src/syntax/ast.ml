@@ -32,6 +32,17 @@ and
   target = Name_Target of string
          | Index_Target of target * expr
 and
+  augop = Add_Augop
+        | Sub_Augop
+        | Mul_Augop
+        | Div_Augop
+        | Pow_Augop
+        | Bitand_Augop
+        | Bitor_Augop
+        | Bitxor_Augop
+        | Lshift_Augop
+        | Rshift_Augop
+and
   else_part = No_Else
             | Else_Block of stmt list
 and
@@ -39,6 +50,7 @@ and
        | Print_Stmt of expr
        | Assign_Stmt of string list * expr
        | Target_Assign_Stmt of target * expr
+       | Augassign_Stmt of string * augop * expr
        | Exit_Stmt
        | If_Stmt of expr * stmt list * else_part
        | While_Stmt of expr * stmt list

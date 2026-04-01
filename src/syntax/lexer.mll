@@ -108,14 +108,24 @@ let minus = '-'
 let bool = "False" | "True"
 let identifier = (letter | '_') (alphanum | '_')*
 let pow = "**"
+let pow_equ = "**="
 let mult = '*'
+let mult_equ = "*="
 let div = '/'
+let div_equ = "/="
 let bitand = '&'
+let bitand_equ = "&="
 let bitor = '|'
+let bitor_equ = "|="
 let bitxor = '^'
+let bitxor_equ = "^="
 let bitnot = '~'
 let lshift = "<<"
+let lshift_equ = "<<="
 let rshift = ">>"
+let rshift_equ = ">>="
+let plus_equ = "+="
+let minus_equ = "-="
 let is_equ = "=="
 let is_neq = "!="
 let lt = '<'
@@ -164,6 +174,16 @@ rule bol n = parse
      | identifier as s  { let pre = apply_indent n in pre @ ((Id_tok s)::(lexer lexbuf)) }
      | plus             { let pre = apply_indent n in pre @ (Plus_tok::(lexer lexbuf)) }
      | minus            { let pre = apply_indent n in pre @ (Minus_tok::(lexer lexbuf)) }
+     | plus_equ         { let pre = apply_indent n in pre @ (Plus_Equ_tok::(lexer lexbuf)) }
+     | minus_equ        { let pre = apply_indent n in pre @ (Minus_Equ_tok::(lexer lexbuf)) }
+     | pow_equ          { let pre = apply_indent n in pre @ (Pow_Equ_tok::(lexer lexbuf)) }
+     | mult_equ         { let pre = apply_indent n in pre @ (Mult_Equ_tok::(lexer lexbuf)) }
+     | div_equ          { let pre = apply_indent n in pre @ (Div_Equ_tok::(lexer lexbuf)) }
+     | bitand_equ       { let pre = apply_indent n in pre @ (Bitand_Equ_tok::(lexer lexbuf)) }
+     | bitor_equ        { let pre = apply_indent n in pre @ (Bitor_Equ_tok::(lexer lexbuf)) }
+     | bitxor_equ       { let pre = apply_indent n in pre @ (Bitxor_Equ_tok::(lexer lexbuf)) }
+     | lshift_equ       { let pre = apply_indent n in pre @ (Lshift_Equ_tok::(lexer lexbuf)) }
+     | rshift_equ       { let pre = apply_indent n in pre @ (Rshift_Equ_tok::(lexer lexbuf)) }
      | pow              { let pre = apply_indent n in pre @ (Pow_tok::(lexer lexbuf)) }
      | mult             { let pre = apply_indent n in pre @ (Mult_tok::(lexer lexbuf)) }
      | div              { let pre = apply_indent n in pre @ (Div_tok::(lexer lexbuf)) }
@@ -215,6 +235,16 @@ lexer = parse
      | identifier as s  { (Id_tok s)::(lexer lexbuf) }
      | plus             { (Plus_tok)::(lexer lexbuf) }
      | minus            { (Minus_tok)::(lexer lexbuf) }
+     | plus_equ         { (Plus_Equ_tok)::(lexer lexbuf) }
+     | minus_equ        { (Minus_Equ_tok)::(lexer lexbuf) }
+     | pow_equ          { (Pow_Equ_tok)::(lexer lexbuf) }
+     | mult_equ         { (Mult_Equ_tok)::(lexer lexbuf) }
+     | div_equ          { (Div_Equ_tok)::(lexer lexbuf) }
+     | bitand_equ       { (Bitand_Equ_tok)::(lexer lexbuf) }
+     | bitor_equ        { (Bitor_Equ_tok)::(lexer lexbuf) }
+     | bitxor_equ       { (Bitxor_Equ_tok)::(lexer lexbuf) }
+     | lshift_equ       { (Lshift_Equ_tok)::(lexer lexbuf) }
+     | rshift_equ       { (Rshift_Equ_tok)::(lexer lexbuf) }
      | pow              { (Pow_tok)::(lexer lexbuf) }
      | mult             { (Mult_tok)::(lexer lexbuf) }
      | div              { (Div_tok)::(lexer lexbuf) }
