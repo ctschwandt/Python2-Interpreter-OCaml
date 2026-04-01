@@ -123,3 +123,17 @@ let rec dict_key_of_value v =
   | Dict_Val _ ->
       raise (Runtime_Error "unhashable type: dict")
 ;;
+
+let rec value_of_dict_key k =
+  match k with
+  | Int_Key n ->
+      Int_Val n
+  | Float_Key x ->
+      Float_Val x
+  | Bool_Key b ->
+      Bool_Val b
+  | String_Key s ->
+      String_Val s
+  | Tuple_Key ks ->
+      Tuple_Val (List.map value_of_dict_key ks)
+;;

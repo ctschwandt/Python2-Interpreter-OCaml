@@ -152,6 +152,12 @@ let iterable_items v =
           chars (i - 1) (String_Val ch::acc)
       in
       chars (String.length s - 1) []
+  | Dict_Val d ->
+      let keys =
+        Hashtbl.fold (fun k _ acc -> k::acc) d []
+        |> List.sort (fun k1 k2 -> String.compare (string_of_dict_key k1) (string_of_dict_key k2))
+      in
+      List.map value_of_dict_key keys
   | _ ->
       raise (Runtime_Error ("value is not iterable: " ^ string_of_value v))
 ;;
