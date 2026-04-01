@@ -140,6 +140,8 @@ let if_ = "if"
 let else_ = "else"
 let elif = "elif"
 let while_ = "while"
+let for_ = "for"
+let in_ = "in"
 let print_ = "print"
 let colon = ':'
 let lbrace = '{'
@@ -170,6 +172,8 @@ rule bol n = parse
      | or_              { let pre = apply_indent n in pre @ (Or_tok::(lexer lexbuf)) }
      | not_             { let pre = apply_indent n in pre @ (Not_tok::(lexer lexbuf)) }
      | while_           { let pre = apply_indent n in pre @ (While_tok::(lexer lexbuf)) }
+     | for_             { let pre = apply_indent n in pre @ (For_tok::(lexer lexbuf)) }
+     | in_              { let pre = apply_indent n in pre @ (In_tok::(lexer lexbuf)) }
      | print_           { let pre = apply_indent n in pre @ (Print_tok::(lexer lexbuf)) }
      | identifier as s  { let pre = apply_indent n in pre @ ((Id_tok s)::(lexer lexbuf)) }
      | plus             { let pre = apply_indent n in pre @ (Plus_tok::(lexer lexbuf)) }
@@ -231,6 +235,8 @@ lexer = parse
      | or_              { Or_tok::(lexer lexbuf) }
      | not_             { Not_tok::(lexer lexbuf) }
      | while_           { While_tok::(lexer lexbuf) }
+     | for_             { For_tok::(lexer lexbuf) }
+     | in_              { In_tok::(lexer lexbuf) }
      | print_           { Print_tok::(lexer lexbuf) }
      | identifier as s  { (Id_tok s)::(lexer lexbuf) }
      | plus             { (Plus_tok)::(lexer lexbuf) }

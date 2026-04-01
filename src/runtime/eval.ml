@@ -107,6 +107,53 @@ and eval_expr env e =
   | Or_Expr (e1, e2) -> or_values (eval_expr env e1) (eval_expr env e2)
   | Not_Expr e1 -> not_value (eval_expr env e1)
   | Bitnot_Expr e1 -> bitnot_value (eval_expr env e1)
+  | Range_Expr args -> eval_range_expr env args
+;;
+
+and eval_range_expr env args =
+  let int_arg e =
+    require_int_value (eval_expr env e)
+  in
+  let (start_i, stop_i, step_i) =
+    match args with
+    | [stop_e] ->
+        (0, int_arg stop_e, 1)
+    | [start_e; stop_e] ->
+        (int_arg start_e, int_arg stop_e, 1)
+    | [start_e; stop_e; step_e] ->
+        (int_arg start_e, int_arg stop_e, int_arg step_e)
+    | _ ->
+        raise (Runtime_Error "range expects 1 to 3 integer arguments")
+  in
+  if step_i = 0 then
+    raise (Runtime_Error "range() arg 3 must not be zero")
+  else
+    let rec build cur acc =
+      if (step_i > 0 && cur >= stop_i) || (step_i < 0 && cur <= stop_i) then
+        List.rev acc
+      else
+        build (cur + step_i) (Int_Val cur::acc)
+    in
+    List_Val (build start_i [])
+;;
+
+let iterable_items v =
+  match v with
+  | List_Val xs ->
+      xs
+  | Tuple_Val xs ->
+      xs
+  | String_Val s ->
+      let rec chars i acc =
+        if i < 0 then
+          acc
+        else
+          let ch = String.make 1 s.[i] in
+          chars (i - 1) (String_Val ch::acc)
+      in
+      chars (String.length s - 1) []
+  | _ ->
+      raise (Runtime_Error ("value is not iterable: " ^ string_of_value v))
 ;;
 
 let eval_augassign env name op rhs_expr =
@@ -156,6 +203,13 @@ let rec eval_stmt env s =
       while to_bool_value (eval_expr env condition) do
         eval_stmt_list env body
       done
+  | For_Stmt (name, iterable_expr, body) ->
+      let items = iterable_items (eval_expr env iterable_expr) in
+      List.iter
+        (fun item ->
+           let _ = update env name item in
+           eval_stmt_list env body)
+        items
 
 and eval_stmt_list env stmts =
   List.iter (eval_stmt env) stmts
