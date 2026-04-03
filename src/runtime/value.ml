@@ -1,5 +1,7 @@
 exception Runtime_Error of string
 
+open Ast
+
 type dict_key =
   | Int_Key of int
   | Float_Key of float
@@ -8,7 +10,19 @@ type dict_key =
   | Tuple_Key of dict_key list
 ;;
 
-type value =
+type env =
+  { table : (string, value) Hashtbl.t
+  ; parent : env option
+  }
+
+and func_value =
+  { name : string option
+  ; params : string list
+  ; body : stmt list
+  ; closure : env
+  }
+
+and value =
   | Int_Val of int
   | Float_Val of float
   | Bool_Val of bool
@@ -16,6 +30,8 @@ type value =
   | List_Val of value list
   | Tuple_Val of value list
   | Dict_Val of (dict_key, value) Hashtbl.t
+  | Function_Val of func_value
+  | None_Val
 ;;
 
 let quoted_string s =
@@ -83,6 +99,12 @@ let rec string_of_value v =
       "(" ^ string_of_values vs ^ ")"
   | Dict_Val d ->
       "{" ^ string_of_dict_entries d ^ "}"
+  | Function_Val f ->
+      (match f.name with
+       | Some name -> "<function " ^ name ^ ">"
+       | None -> "<function>")
+  | None_Val ->
+      "None"
 
 and
   string_of_values vs =
@@ -122,6 +144,10 @@ let rec dict_key_of_value v =
       raise (Runtime_Error "unhashable type: list")
   | Dict_Val _ ->
       raise (Runtime_Error "unhashable type: dict")
+  | Function_Val _ ->
+      raise (Runtime_Error "unhashable type: function")
+  | None_Val ->
+      raise (Runtime_Error "unhashable type: NoneType")
 ;;
 
 let rec value_of_dict_key k =

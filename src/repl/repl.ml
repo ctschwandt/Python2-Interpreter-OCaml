@@ -55,6 +55,7 @@ let starts_compound_stmt s =
   || starts_with_word t "else"
   || starts_with_word t "while"
   || starts_with_word t "for"
+  || starts_with_word t "def"
 ;;
 
 let rec read_indented_lines acc =

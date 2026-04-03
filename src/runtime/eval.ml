@@ -5,6 +5,7 @@ open Ops
 
 exception Exit
 exception Runtime_Error = Value.Runtime_Error
+exception Return_Signal of value
 
 let target_root_and_indices target =
   let rec aux t acc =
@@ -52,6 +53,10 @@ let rec set_path env current idx_es rhs =
           raise (Runtime_Error "float does not support item assignment")
       | Bool_Val _ ->
           raise (Runtime_Error "bool does not support item assignment")
+      | Function_Val _ ->
+          raise (Runtime_Error "function does not support item assignment")
+      | None_Val ->
+          raise (Runtime_Error "NoneType does not support item assignment")
 
 and assign_target env target rhs =
   let (root_name, idx_es) = target_root_and_indices target in
@@ -92,8 +97,8 @@ and eval_expr env e =
         match opt with
         | None ->
             None
-        | Some e ->
-            Some (eval_expr env e)
+        | Some e1 ->
+            Some (eval_expr env e1)
       in
       value_at_slice base_v (eval_opt start_opt) (eval_opt stop_opt) (eval_opt step_opt)
   | Neg_Expr e1 -> neg_value (eval_expr env e1)
@@ -118,6 +123,40 @@ and eval_expr env e =
   | Not_Expr e1 -> not_value (eval_expr env e1)
   | Bitnot_Expr e1 -> bitnot_value (eval_expr env e1)
   | Range_Expr args -> eval_range_expr env args
+  | Call_Expr (fn_expr, arg_exprs) ->
+      let fn_v = eval_expr env fn_expr in
+      let arg_vs = List.map (eval_expr env) arg_exprs in
+      (match fn_v with
+       | Function_Val fn ->
+           let expected = List.length fn.params in
+           let got = List.length arg_vs in
+           if expected <> got then
+             raise
+               (Runtime_Error
+                  ("wrong number of arguments: expected "
+                   ^ string_of_int expected
+                   ^ " but got "
+                   ^ string_of_int got))
+           else
+             let call_env = mk_child_env fn.closure in
+             let _ =
+               (match fn.name with
+                | None -> ()
+                | Some name -> define call_env name fn_v)
+             in
+             let _ =
+               List.iter2
+                 (fun param arg_v -> define call_env param arg_v)
+                 fn.params
+                 arg_vs
+             in
+             (try
+                let _ = eval_stmt_list call_env fn.body in
+                None_Val
+              with
+              | Return_Signal ret_v -> ret_v)
+       | _ ->
+           raise (Runtime_Error ("value is not callable: " ^ string_of_value fn_v)))
 
 and
   eval_range_expr env args =
@@ -191,7 +230,7 @@ let eval_augassign env name op rhs_expr =
   update env name result
 ;;
 
-let rec eval_stmt env s =
+let rec eval_stmt_inner env s =
   match s with
   | Exit_Stmt -> raise Exit
   | Expr_Stmt e ->
@@ -208,6 +247,20 @@ let rec eval_stmt env s =
       assign_target env target v
   | Augassign_Stmt (name, op, e) ->
       eval_augassign env name op e
+  | Def_Stmt (name, params, body) ->
+      let fn =
+        Function_Val
+          { name = Some name
+          ; params
+          ; body
+          ; closure = env
+          }
+      in
+      define env name fn
+  | Return_Stmt value_opt ->
+      (match value_opt with
+       | None -> raise (Return_Signal None_Val)
+       | Some e -> raise (Return_Signal (eval_expr env e)))
   | If_Stmt (condition, then_body, else_body) ->
       if to_bool_value (eval_expr env condition) then
         eval_stmt_list env then_body
@@ -228,5 +281,13 @@ let rec eval_stmt env s =
         items
 
 and eval_stmt_list env stmts =
-  List.iter (eval_stmt env) stmts
+  List.iter (eval_stmt_inner env) stmts
+;;
+
+let eval_stmt env s =
+  try
+    eval_stmt_inner env s
+  with
+  | Return_Signal _ ->
+      raise (Runtime_Error "return outside function")
 ;;
