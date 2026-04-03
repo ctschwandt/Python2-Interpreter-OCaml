@@ -238,7 +238,7 @@ and eval_stmt_inner env s =
       print_endline (string_of_value v)
   | Assign_Stmt (names, e) ->
       let v = eval_expr env e in
-      List.iter (fun name -> update env name v) names
+      List.iter (fun name -> define env name v) names
   | Target_Assign_Stmt (target, e) ->
       let v = eval_expr env e in
       assign_target env target v
