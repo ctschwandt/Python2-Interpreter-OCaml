@@ -184,9 +184,8 @@ and
         build (cur + step_i) (Int_Val cur::acc)
     in
     List_Val (build start_i [])
-;;
 
-let iterable_items v =
+and iterable_items v =
   match v with
   | List_Val xs ->
       xs
@@ -209,9 +208,8 @@ let iterable_items v =
       List.map value_of_dict_key keys
   | _ ->
       raise (Runtime_Error ("value is not iterable: " ^ string_of_value v))
-;;
 
-let eval_augassign env name op rhs_expr =
+and eval_augassign env name op rhs_expr =
   let lhs = lookup env name in
   let rhs = eval_expr env rhs_expr in
   let result =
@@ -228,9 +226,8 @@ let eval_augassign env name op rhs_expr =
     | Rshift_Augop -> rshift_values lhs rhs
   in
   update env name result
-;;
 
-let rec eval_stmt_inner env s =
+and eval_stmt_inner env s =
   match s with
   | Exit_Stmt -> raise Exit
   | Expr_Stmt e ->
