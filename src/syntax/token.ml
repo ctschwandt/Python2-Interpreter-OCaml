@@ -43,6 +43,8 @@ type token = Int_tok of int
            | For_tok
            | In_tok
            | Print_tok
+           | Def_tok
+           | Return_tok
            | Lbrace_tok
            | Rbrace_tok
            | Lbracket_tok
@@ -102,6 +104,8 @@ let string_of_token tok =
   | For_tok        -> "For_tok"
   | In_tok         -> "In_tok"
   | Print_tok      -> "Print_tok"
+  | Def_tok        -> "Def_tok"
+  | Return_tok     -> "Return_tok"
   | Lbrace_tok     -> "Lbrace_tok"
   | Rbrace_tok     -> "Rbrace_tok"
   | Lbracket_tok   -> "Lbracket_tok"

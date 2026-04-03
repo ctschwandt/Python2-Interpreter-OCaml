@@ -62,6 +62,39 @@ and
     | _ -> None
 
 and
+  parse_name_list_until_rparen rev_names toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Rparen_tok::rest ->
+        (List.rev rev_names, rest)
+    | Id_tok name::rest1 ->
+        (match skip_newlines rest1 with
+         | Comma_tok::rest2 ->
+             parse_name_list_until_rparen (name::rev_names) rest2
+         | Rparen_tok::rest2 ->
+             (List.rev (name::rev_names), rest2)
+         | _ ->
+             raise (Parse_error "Expected Comma_tok or Rparen_tok in parameter list"))
+    | _ ->
+        raise (Parse_error "Expected identifier or Rparen_tok in parameter list")
+
+and
+  parse_call_args rev_args toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | Rparen_tok::rest ->
+        (List.rev rev_args, rest)
+    | _ ->
+        let (arg, rest1) = full_expr toks in
+        (match skip_newlines rest1 with
+         | Comma_tok::rest2 ->
+             parse_call_args (arg::rev_args) rest2
+         | Rparen_tok::rest2 ->
+             (List.rev (arg::rev_args), rest2)
+         | _ ->
+             raise (Parse_error "Expected Comma_tok or Rparen_tok in call arguments"))
+
+and
   stmt toks =
     let toks = skip_newlines toks in
     let _ = check_no_unexpected_indent toks in
@@ -74,6 +107,27 @@ and
         (Exit_Stmt, skip_newlines rest)
     | Id_tok "quit"::rest ->
         (Exit_Stmt, skip_newlines rest)
+    | Def_tok::Id_tok name::rest ->
+        (match skip_newlines rest with
+         | Lparen_tok::rest1 ->
+             let (params, rest2) = parse_name_list_until_rparen [] rest1 in
+             (match skip_newlines rest2 with
+              | Colon_tok::rest3 ->
+                  let (body, rest4) = stmt_or_block rest3 in
+                  (Def_Stmt(name, params, body), rest4)
+              | _ ->
+                  raise (Parse_error "Expected Colon_tok after function signature"))
+         | _ ->
+             raise (Parse_error "Expected Lparen_tok after function name"))
+    | Def_tok::_ ->
+        raise (Parse_error "Expected identifier after def")
+    | Return_tok::rest ->
+        (match rest with
+         | [] | Newline_tok::_ | Dedent_tok::_ ->
+             (Return_Stmt None, skip_newlines rest)
+         | _ ->
+             let (e, rest2) = full_expr rest in
+             (Return_Stmt (Some e), skip_newlines rest2))
     | If_tok::rest ->
         let (cond, rest1) = full_expr rest in
         (match skip_newlines rest1 with
@@ -431,6 +485,9 @@ and
         (match parse_bracket_subscript base toks1 with
          | (subscript, toks2) ->
              postfix_tail subscript toks2)
+    | Lparen_tok::toks1 ->
+        let (args, toks2) = parse_call_args [] toks1 in
+        postfix_tail (Call_Expr(base, args)) toks2
     | _ ->
         (base, toks)
 
