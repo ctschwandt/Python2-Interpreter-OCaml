@@ -54,6 +54,10 @@ let to_bool_value v =
       vs <> []
   | Dict_Val d ->
       Hashtbl.length d <> 0
+  | Function_Val _ ->
+      true
+  | None_Val ->
+      false
 ;;
 
 let normalize_index i len =
@@ -86,6 +90,10 @@ let value_at_index v index_v =
       raise (Runtime_Error "type bool is not indexable")
   | String_Val _ ->
       raise (Runtime_Error "type string is not indexable")
+  | Function_Val _ ->
+      raise (Runtime_Error "type function is not indexable")
+  | None_Val ->
+      raise (Runtime_Error "type NoneType is not indexable")
 ;;
 
 let clamp low high x =
@@ -150,6 +158,10 @@ let value_at_slice v start_opt stop_opt step_opt =
         raise (Runtime_Error "type bool does not support slicing")
     | String_Val _ ->
         raise (Runtime_Error "type string does not support slicing")
+    | Function_Val _ ->
+        raise (Runtime_Error "type function does not support slicing")
+    | None_Val ->
+        raise (Runtime_Error "type NoneType does not support slicing")
 ;;
 
 let replace_nth xs i new_v =
@@ -181,6 +193,10 @@ let neg_value v =
       raise (Runtime_Error "bad operand type for unary -: tuple")
   | Dict_Val _ ->
       raise (Runtime_Error "bad operand type for unary -: dict")
+  | Function_Val _ ->
+      raise (Runtime_Error "bad operand type for unary -: function")
+  | None_Val ->
+      raise (Runtime_Error "bad operand type for unary -: NoneType")
 ;;
 
 let bitnot_value v =
