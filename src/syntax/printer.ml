@@ -87,6 +87,8 @@ let rec string_of_expr e =
       "(~" ^ string_of_expr e1 ^ ")"
   | Range_Expr args ->
       "range(" ^ string_of_exprs args ^ ")"
+  | Call_Expr (fn, args) ->
+      string_of_expr fn ^ "(" ^ string_of_exprs args ^ ")"
 
 and
   string_of_exprs es =
@@ -177,4 +179,15 @@ let rec string_of_stmt s =
         String.concat "; " (List.map string_of_stmt body)
       in
       "for " ^ name ^ " in " ^ string_of_expr iterable ^ ": [" ^ body_s ^ "]"
+  | Def_Stmt (name, params, body) ->
+      let body_s =
+        String.concat "; " (List.map string_of_stmt body)
+      in
+      "def " ^ name ^ "(" ^ String.concat ", " params ^ "): [" ^ body_s ^ "]"
+  | Return_Stmt ret_opt ->
+      (match ret_opt with
+       | None ->
+           "return"
+       | Some e ->
+           "return " ^ string_of_expr e)
 ;;
