@@ -31,7 +31,6 @@ dune exec ./bin/main.exe -- examples/hello.py
 For example, save the following as `hello.py`:
 
 ```python
-# This script uses the interpreter's supported Python subset.
 def square(x):
     return x * x
 
@@ -51,18 +50,4 @@ Output:
 0
 1
 4
-```
-
-The interpreter supports `#` comments, including inline comments. Scripts
-share the interpreter's existing language subset and evaluation behavior;
-they are not guaranteed to run every valid CPython program. Lexing, parsing,
-file I/O, and runtime failures produce an error message on standard error
-and a nonzero exit status.
-
-## Tests
-
-Run the end-to-end script execution and REPL smoke tests with:
-
-```bash
-bash tests/run_file_tests.sh
 ```
