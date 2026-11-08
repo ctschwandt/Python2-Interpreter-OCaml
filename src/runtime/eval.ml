@@ -11,7 +11,7 @@ let target_root_and_indices target =
   let rec aux t acc =
     match t with
     | Name_Target name ->
-        (name, List.rev acc)
+        (name, acc)
     | Index_Target (t1, idx_e) ->
         aux t1 (idx_e::acc)
   in
@@ -123,6 +123,29 @@ and eval_expr env e =
   | Not_Expr e1 -> not_value (eval_expr env e1)
   | Bitnot_Expr e1 -> bitnot_value (eval_expr env e1)
   | Range_Expr args -> eval_range_expr env args
+  | Call_Expr (Var_Expr "input", arg_exprs) ->
+      let prompt =
+        match List.map (eval_expr env) arg_exprs with
+        | [] -> ""
+        | [String_Val s] -> s
+        | [_] -> raise (Runtime_Error "input() prompt must be a string")
+        | _ -> raise (Runtime_Error "input() expects zero or one argument")
+      in
+      print_string prompt;
+      flush stdout;
+      (try String_Val (read_line ())
+       with End_of_file -> raise (Runtime_Error "input(): end of input"))
+  | Call_Expr (Var_Expr "int", arg_exprs) ->
+      (match List.map (eval_expr env) arg_exprs with
+       | [Int_Val n] -> Int_Val n
+       | [Bool_Val b] -> Int_Val (if b then 1 else 0)
+       | [Float_Val f] -> Int_Val (int_of_float f)
+       | [String_Val s] ->
+           (match int_of_string_opt (String.trim s) with
+            | Some n -> Int_Val n
+            | None -> raise (Runtime_Error ("invalid literal for int(): " ^ s)))
+       | [_] -> raise (Runtime_Error "int() expects a number or numeric string")
+       | _ -> raise (Runtime_Error "int() expects exactly one argument"))
   | Call_Expr (fn_expr, arg_exprs) ->
       let fn_v = eval_expr env fn_expr in
       let arg_vs = List.map (eval_expr env) arg_exprs in
@@ -235,7 +258,9 @@ and eval_stmt_inner env s =
       print_endline (string_of_value v)
   | Print_Stmt e ->
       let v = eval_expr env e in
-      print_endline (string_of_value v)
+      (match v with
+       | String_Val s -> print_endline s
+       | _ -> print_endline (string_of_value v))
   | Assign_Stmt (names, e) ->
       let v = eval_expr env e in
       List.iter (fun name -> define env name v) names
