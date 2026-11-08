@@ -162,6 +162,7 @@ rule bol n = parse
      | '\r'             { bol n lexbuf }
      | '\n'             { Lexing.new_line lexbuf; bol 0 lexbuf }
      | lcomment         { comment_bol n 0 lexbuf }
+     | '#'              { line_comment_bol lexbuf }
 
      | float as s       { let pre = apply_indent n in pre @ ((Float_tok (float_of_string s))::(lexer lexbuf)) }
      | integer as s     { let pre = apply_indent n in pre @ ((Int_tok (int_of_string s))::(lexer lexbuf)) }
@@ -281,6 +282,7 @@ lexer = parse
      | rbracket         { (Rbracket_tok)::(lexer lexbuf) }
      | comma            { (Comma_tok)::(lexer lexbuf) }
      | lcomment         { comment 0 lexbuf }
+     | '#'              { line_comment lexbuf }
      | colon            { (Colon_tok)::(lexer lexbuf) }
      | eof              { emit_eof_dedents () }
      | _ as c           { raise (LexError ("Unexpected character '" ^ String.make 1 c ^ "'")) }
@@ -300,6 +302,18 @@ comment_bol indent n = parse
      | '\n'             { let _ = (Lexing.new_line lexbuf) in comment_bol indent n lexbuf }
      | eof              { raise (LexError "Unterminated comment") }
      | _                { comment_bol indent n lexbuf }
+
+and
+line_comment_bol = parse
+     | '\n'             { Lexing.new_line lexbuf; bol 0 lexbuf }
+     | eof              { pop_to_level 0 }
+     | _                { line_comment_bol lexbuf }
+
+and
+line_comment = parse
+     | '\n'             { Lexing.new_line lexbuf; Newline_tok::(bol 0 lexbuf) }
+     | eof              { emit_eof_dedents () }
+     | _                { line_comment lexbuf }
 
 {
     let tokenize s =
