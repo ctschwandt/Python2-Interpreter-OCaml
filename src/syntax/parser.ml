@@ -721,3 +721,17 @@ let parse toks =
        | _ ->
            raise (Parse_error ("Unconsumed tokens: " ^ string_of_tokens rest)))
 ;;
+
+(* Parse a complete source file rather than a single REPL statement. *)
+let parse_program toks =
+  let rec loop acc toks =
+    let toks = skip_newlines toks in
+    match toks with
+    | [] -> List.rev acc
+    | _ ->
+        let () = check_no_unexpected_indent toks in
+        let (statement, rest) = stmt toks in
+        loop (statement :: acc) rest
+  in
+  loop [] toks
+;;
